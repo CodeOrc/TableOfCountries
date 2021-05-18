@@ -1,0 +1,127 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+
+</head>
+
+<style>
+.btndown{
+    background-color: cornflowerblue;
+}
+
+table,th,td{
+    border: 2px solid black;
+    text-align:center;
+}
+table {
+  width: 80%;
+  border-collapse: collapse;
+  
+}
+</style>
+
+<body>
+
+<div id="Main">
+
+    <input type="text" id="nameSearch"><button id="searchBtn">search</button>
+
+    <select id="select">
+        <option>A-Z</option>
+        <option>Z-A</option>
+    </select>
+
+<table >
+    <thead>
+    <tr>
+        <th>flag</th><th>name</th><th>alpha2Code</th><th>alpha3Code</th><th>altSpellings</th><th>callingCodes</th>
+    </tr>
+    </thead>
+    <tbody id="tb">
+    </tbody>
+    <tfoot>
+    <tr >
+        <td colspan=6 id="page"></td>
+    </tr>
+</tfoot>
+</table>
+
+</div>
+
+<script>
+const contain = document.getElementById('tb');
+var pageNow=1;
+getdata();
+
+document.getElementById('searchBtn').addEventListener('click',
+()=>{pageNow=1;
+    getdata();
+    });
+
+    document.getElementById('select').addEventListener('change',
+()=>{
+    getdata();
+    });
+
+
+function getTotalPage(data) {
+    return Math.ceil(data.length/25);
+}
+
+function createPage(num){
+    document.getElementById("page").innerHTML="";
+    for(i=1;i<=num;i++)
+    {
+    if(i==pageNow)
+    {document.getElementById("page").innerHTML+=`<input type="button" class="btndown" value=${i} onclick="changePage(this)"/>`;}
+    else
+    {document.getElementById("page").innerHTML+=`<input type="button" value=${i} onclick="changePage(this)"/>`;}
+    }
+}
+
+function changePage(page){
+    pageNow=page.value;
+    getdata();
+    
+}
+
+function getdata(){
+var str="";
+    if(document.getElementById('nameSearch').value.trim()!="")
+    {str=`https://restcountries.eu/rest/v2/name/${document.getElementById('nameSearch').value}`;}
+    else{
+        str="https://restcountries.eu/rest/v2/all"
+    }
+
+    document.getElementById('tb').innerHTML="";
+    var request = new XMLHttpRequest();
+    request.open('GET',str);
+    request.onload=function () {
+
+    if(this.status >= 200 && this.status < 400){
+    var data = JSON.parse(this.response);
+    };
+
+    if(document.getElementById('select').value=="Z-A")
+    {data.reverse();}
+    
+    createPage(getTotalPage(data));
+    
+    for(i=(pageNow-1)*25;i<25*pageNow&&i<data.length;i++){
+        const tr = document.createElement('tr');
+        tr.innerHTML=
+        `<td><img style="width:150px" src=${data[i].flag}></td>
+        <td>${data[i].name}</td>
+        <td>${data[i].alpha2Code}</td>
+        <td>${data[i].alpha3Code}</td>
+        <td>${data[i].altSpellings}</td>
+        <td>${data[i].callingCodes}</td>`;
+         contain.appendChild(tr);
+        };
+    };
+request.send();
+}
+
+</script>
+</body>
+</html>
