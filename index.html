@@ -5,6 +5,25 @@
 </head>
 
 <style>
+.modal {
+  display: none; 
+  position: fixed; 
+  width: 100%; 
+  height: 100%;
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4);;
+ 
+}
+.modalContext{
+    width: 80%; 
+    margin:100px;
+    padding: 50px;
+    background-color: white;
+    
+}
 .btndown{
     background-color: cornflowerblue;
 }
@@ -21,7 +40,11 @@ table {
 </style>
 
 <body>
-
+<div id="mainModal" class="modal">
+<div class="modalContext" id="modal">
+</div>
+</div>
+    
 <div id="Main">
 
     <input type="text" id="nameSearch"><button id="searchBtn">search</button>
@@ -49,10 +72,17 @@ table {
 </div>
 
 <script>
+var modal = document.getElementById("mainModal");
 const contain = document.getElementById('tb');
 var pageNow=1;
 getdata();
 
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}    
+   
 document.getElementById('searchBtn').addEventListener('click',
 ()=>{pageNow=1;
     getdata();
@@ -85,6 +115,42 @@ function changePage(page){
     
 }
 
+function getmodal(td) {
+    document.getElementById("modal").innerHTML="";
+    
+    var request = new XMLHttpRequest();
+    request.open('GET',`https://restcountries.eu/rest/v2/name/${td.text}`);
+    request.onload=function () {
+
+    if(this.status >= 200 && this.status < 400){
+    var data = JSON.parse(this.response);
+    };
+
+        document.getElementById("modal").innerHTML=
+        `<table>
+        <thead><tr><th colspan=2><img style="width:300px" src=${data[0].flag}></th></tr></thead>
+        <tbody>
+            <tr><td>name</td><td>${data[0].name}</td></tr>
+            <tr><td>callingCodes</td><td>${data[0].callingCodes}</td></tr>
+            <tr><td>capital</td><td>${data[0].capital}</td></tr>
+            <tr><td>region</td><td>${data[0].region}</td></tr>
+            <tr><td>subregion</td><td>${data[0].subregion}</td></tr>
+            <tr><td>population</td><td>${data[0].population}</td></tr>
+            <tr><td>latlng</td><td>${data[0].latlng}</td></tr>
+            <tr><td>nativeName</td><td>${data[0].nativeName}</td></tr>
+            <tr><td>nativeName</td><td>${data[0].nativeName}</td></tr>
+        </tbody>
+        </table>`;
+        
+
+    };
+    request.send();
+    
+    modal.style.display = "block";
+}
+    
+    
+    
 function getdata(){
 var str="";
     if(document.getElementById('nameSearch').value.trim()!="")
@@ -111,7 +177,7 @@ var str="";
         const tr = document.createElement('tr');
         tr.innerHTML=
         `<td><img style="width:150px" src=${data[i].flag}></td>
-        <td>${data[i].name}</td>
+        <td><a href="#" onclick="getmodal(this)">${data[i].name}<a></td>
         <td>${data[i].alpha2Code}</td>
         <td>${data[i].alpha3Code}</td>
         <td>${data[i].altSpellings}</td>
